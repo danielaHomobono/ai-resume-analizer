@@ -334,6 +334,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             return;
         }
 
+        // No especificamos modelo - Puter usará el que esté disponible
         return puter.ai.chat(
             [
                 {
@@ -349,8 +350,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
                         },
                     ],
                 },
-            ],
-            { model: "claude-3-5-sonnet-20241022" }
+            ]
         ) as Promise<AIResponse | undefined>;
     };
 

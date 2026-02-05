@@ -47,17 +47,20 @@ const Upload = () => {
 
         setStatusText('Analyzing...');
 
-        const feedback = await ai.feedback(
-            uploadedFile.path,
-            prepareInstructions({ jobTitle, jobDescription })
-        )
-        if (!feedback) return setStatusText('Error: Failed to analyze resume');
-
-        const feedbackText = typeof feedback.message.content === 'string'
-            ? feedback.message.content
-            : feedback.message.content[0].text;
-
         try {
+            const feedback = await ai.feedback(
+                uploadedFile.path,
+                prepareInstructions({ jobTitle, jobDescription })
+            )
+            if (!feedback) {
+                setIsProcessing(false);
+                return setStatusText('Error: Failed to analyze resume');
+            }
+
+            const feedbackText = typeof feedback.message.content === 'string'
+                ? feedback.message.content
+                : feedback.message.content[0].text;
+
             // Limpiar la respuesta: eliminar backticks de markdown si existen
             let cleanedText = feedbackText.trim();
             
@@ -77,16 +80,22 @@ const Upload = () => {
             }
             
             data.feedback = JSON.parse(cleanedText);
-        } catch (parseError) {
-            console.error('Error parsing feedback:', parseError);
-            console.error('Raw feedback text:', feedbackText);
-            return setStatusText('Error: AI response is not in valid JSON format. Please try again.');
+            
+            await kv.set(`resume:${uuid}`, JSON.stringify(data));
+            setStatusText('Analysis complete, redirecting...');
+            console.log(data);
+            navigate(`/resume/${uuid}`);
+        } catch (error) {
+            console.error('Error during analysis:', error);
+            setIsProcessing(false);
+            if (error instanceof Error) {
+                setStatusText(`Error: ${error.message}`);
+            } else if (typeof error === 'object' && error !== null && 'error' in error) {
+                setStatusText(`Error: ${(error as any).error}`);
+            } else {
+                setStatusText('Error: Failed to analyze resume. Please try again.');
+            }
         }
-        
-        await kv.set(`resume:${uuid}`, JSON.stringify(data));
-        setStatusText('Analysis complete, redirecting...');
-        console.log(data);
-        navigate(`/resume/${uuid}`);
     }
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
