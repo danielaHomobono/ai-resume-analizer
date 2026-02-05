@@ -349,8 +349,8 @@ export const usePuterStore = create<PuterStore>((set, get) => {
                         },
                     ],
                 },
-            ],
-            { model: "claude-3-7-sonnet" }
+            ]
+            // No especificamos modelo - Puter usará el modelo por defecto
         ) as Promise<AIResponse | undefined>;
     };
 
