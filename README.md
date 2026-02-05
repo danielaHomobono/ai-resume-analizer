@@ -1,7 +1,7 @@
 
 # AI Resume Analyzer
 
-**AI Resume Analyzer** es una aplicación web full-stack construida con React, React Router, TypeScript y TailwindCSS. Permite a los usuarios subir su currículum, analizarlo con inteligencia artificial (Claude 3.5 Sonnet vía Puter), obtener feedback personalizado y visualizar resultados de manera interactiva.
+**AI Resume Analyzer** es una aplicación web full-stack construida con React, React Router, TypeScript y TailwindCSS. Permite a los usuarios subir su currículum, analizarlo con inteligencia artificial (GPT-4o vía Puter), obtener feedback personalizado y visualizar resultados de manera interactiva.
 
 ---
 
@@ -74,7 +74,7 @@ docker run -p 3000:3000 ai-resume-analyzer
 ## Integración con Puter e IA
 
 - **Puter** es la capa de backend que gestiona autenticación, almacenamiento de archivos, base de datos clave-valor y acceso a modelos de IA.
-- El análisis de CV se realiza enviando el PDF y un prompt personalizado (según la vacante) al modelo Claude 3.5 Sonnet a través de Puter.
+- El análisis de CV se realiza enviando el PDF y un prompt personalizado (según la vacante) al modelo GPT-4o a través de Puter.
 - El feedback de la IA se almacena y se muestra al usuario con visualizaciones interactivas.
 
 ---

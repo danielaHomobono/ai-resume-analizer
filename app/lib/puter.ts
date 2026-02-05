@@ -349,8 +349,8 @@ export const usePuterStore = create<PuterStore>((set, get) => {
                         },
                     ],
                 },
-            ]
-            // No especificamos modelo - Puter usará el modelo por defecto
+            ],
+            { model: "gpt-4o" }
         ) as Promise<AIResponse | undefined>;
     };
 
