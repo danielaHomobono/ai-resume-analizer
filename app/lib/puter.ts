@@ -334,24 +334,62 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             return;
         }
 
-        // No especificamos modelo - Puter usará el que esté disponible
-        return puter.ai.chat(
-            [
-                {
-                    role: "user",
-                    content: [
+        // Intentar obtener lista de modelos disponibles para debugging
+        try {
+            // @ts-ignore - Puter puede tener una API para listar modelos
+            if (puter.ai.models) {
+                const models = await puter.ai.models();
+                console.log('Modelos de IA disponibles en Puter:', models);
+            }
+        } catch (e) {
+            console.log('No se pudo obtener lista de modelos:', e);
+        }
+
+        // Intentar con diferentes modelos en orden de preferencia
+        const modelsToTry = [
+            undefined, // Sin especificar (default)
+            { model: "gpt-4o-mini" },
+            { model: "gpt-3.5-turbo" },
+            { model: "claude-3-5-sonnet-20241022" },
+            { model: "claude-3-haiku" }
+        ];
+
+        for (const modelOption of modelsToTry) {
+            try {
+                console.log('Intentando con modelo:', modelOption || 'default');
+                const result = await puter.ai.chat(
+                    [
                         {
-                            type: "file",
-                            puter_path: path,
-                        },
-                        {
-                            type: "text",
-                            text: message,
+                            role: "user",
+                            content: [
+                                {
+                                    type: "file",
+                                    puter_path: path,
+                                },
+                                {
+                                    type: "text",
+                                    text: message,
+                                },
+                            ],
                         },
                     ],
-                },
-            ]
-        ) as Promise<AIResponse | undefined>;
+                    modelOption
+                ) as Promise<AIResponse | undefined>;
+                
+                console.log('✅ Modelo funcionó:', modelOption || 'default');
+                return result;
+            } catch (error: any) {
+                console.log('❌ Modelo falló:', modelOption || 'default', error);
+                if (error.error && typeof error.error === 'string' && 
+                    error.error.includes('Model not found')) {
+                    continue; // Intentar siguiente modelo
+                }
+                throw error; // Si es otro tipo de error, lanzarlo
+            }
+        }
+
+        // Si ningún modelo funcionó
+        throw new Error('No hay modelos de IA disponibles en Puter. Por favor verifica tu cuenta o contacta a Puter.');
     };
 
     const img2txt = async (image: string | File | Blob, testMode?: boolean) => {
