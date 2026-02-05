@@ -237,5 +237,10 @@ export const prepareInstructions = ({jobTitle, jobDescription}: { jobTitle: stri
       The job description is: ${jobDescription}
       Provide the feedback using the following format:
       ${AIResponseFormat}
-      Return the analysis as an JSON object, without any other text and without the backticks.
-      Do not include any other text or comments.`;
+      CRITICAL INSTRUCTIONS:
+      - You MUST respond with ONLY a valid JSON object
+      - Do NOT include any explanations, apologies, greetings, or additional text before or after the JSON
+      - Do NOT wrap the JSON in markdown code blocks or backticks
+      - Your entire response must be parseable by JSON.parse()
+      - Start your response with { and end with }
+      - If you cannot analyze the document, still return a valid JSON with low scores`;
