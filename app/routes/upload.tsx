@@ -57,7 +57,32 @@ const Upload = () => {
             ? feedback.message.content
             : feedback.message.content[0].text;
 
-        data.feedback = JSON.parse(feedbackText);
+        try {
+            // Limpiar la respuesta: eliminar backticks de markdown si existen
+            let cleanedText = feedbackText.trim();
+            
+            // Eliminar bloques de código markdown si existen
+            if (cleanedText.startsWith('```json')) {
+                cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (cleanedText.startsWith('```')) {
+                cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            
+            // Buscar el primer { y el último }
+            const firstBrace = cleanedText.indexOf('{');
+            const lastBrace = cleanedText.lastIndexOf('}');
+            
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                cleanedText = cleanedText.substring(firstBrace, lastBrace + 1);
+            }
+            
+            data.feedback = JSON.parse(cleanedText);
+        } catch (parseError) {
+            console.error('Error parsing feedback:', parseError);
+            console.error('Raw feedback text:', feedbackText);
+            return setStatusText('Error: AI response is not in valid JSON format. Please try again.');
+        }
+        
         await kv.set(`resume:${uuid}`, JSON.stringify(data));
         setStatusText('Analysis complete, redirecting...');
         console.log(data);
